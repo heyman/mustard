@@ -148,16 +148,7 @@ class Service(object):
     @cmd
     def pull(self):
         was_running = False
-        import sys
-        class MyStream(object):
-            def write(self, data):
-                #print "write:", data, len(data)
-                if not data == "[heyevent@127.0.0.1:2222] out: ":
-                    sys.stdout.write(data)
-            def flush(self):
-                sys.stdout.flush()
-                pass
-        self.project.run("docker pull " + self.image, stdout=MyStream())
+        self.project.run("docker pull " + self.image)
         return
         if self.exists():
             was_running = self.is_running()
