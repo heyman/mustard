@@ -9,15 +9,17 @@ def main():
         sys.exit(1)
     
     mustardfile = imp.load_source("mustardfile", "mustardfile.py")
-    try:
-        if not isinstance(mustardfile.project, Project):
-            raise TypeError("mustardfile.project not of type mustard.Project")
-        cli = mustardfile.project.cli()
-    except (AttributeError, TypeError):
+    
+    if not hasattr(mustardfile, "project"):
+        sys.stderr.write("mustardfile.py does not have a project variable\n")
+        sys.exit(1)
+        
+    if not isinstance(mustardfile.project, Project):
         sys.stderr.write("mustardfile.project is not an instance of mustard.Project\n")
         sys.exit(1)
         
     # run CLI
+    cli = mustardfile.project.cli()
     cli()
 
 if __name__ == "__main__":
