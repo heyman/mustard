@@ -66,7 +66,11 @@ class Project(object):
         self.run(" ".join(arg))
     
     def cli(self):
-        cli = click.Group("mustard")
+        def set_host(host):
+            if host is not None:
+                self.host_string = host
+        
+        cli = click.Group("mustard", params=[click.Option(["--host"], default=None)], callback=set_host)
         for service in self.services:
             cli.add_command(service.cli())
         
