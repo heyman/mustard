@@ -93,7 +93,7 @@ class Service(object):
     shell_command = None
     shell_links = None
     
-    def __init__(self, name, image, volumes={}, env={}, links=[], command=None, shell_command=None, shell_links=None):
+    def __init__(self, name, image, volumes={}, env={}, links=[], command=None, shell_command=None, shell_links=None, registry_login=None):
         self.name = name
         self.image = image
         self.volumes = volumes
@@ -102,6 +102,7 @@ class Service(object):
         self.command = command
         self.shell_command = shell_command
         self.shell_links = shell_links
+        self.registry_login = registry_login
     
     @cmd
     def run(self):
@@ -148,8 +149,9 @@ class Service(object):
     @cmd
     def pull(self):
         was_running = False
+        if self.registry_login is not None:
+            self.project.run("docker login " + self.registry_login)
         self.project.run("docker pull " + self.image)
-        return
         if self.exists():
             was_running = self.is_running()
             if was_running:
