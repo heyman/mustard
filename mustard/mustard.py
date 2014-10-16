@@ -3,7 +3,7 @@ import time
 import subprocess
 
 import click
-from fabric.api import task, run, env, settings, open_shell, hide
+from fabric.api import task, run, env, settings, hide
 
 
 def cmd(f):
@@ -46,15 +46,23 @@ class Project(object):
         env.host_string = self.host_string
         return run(*args, **kwargs)
     
-    def open_shell(self, command):
+    def run_ssh(self, command, to_file=None, from_file=None, terminal=True):
         """
-        Spawn shell by running local ssh command. 
-        Fabric's open_shell() doesn't seem to work when 
-        opening shells within docker containers.
+        Run a local ssh command
         """
         host, port = self.host_string.split(":")
-        #subprocess.call(" ".join(["ssh", host, "-t", "-p", port, '"%s"' % command]), shell=True)
-        subprocess.call(["ssh", host, "-t", "-p", port, command])
+        args = ["ssh", host]
+        if terminal:
+            args.append("-t")
+        args.extend(["-p", port, command])
+        
+        ssh_command = subprocess.list2cmdline(args)
+        if from_file is not None:
+            ssh_command += " < " + from_file
+        if to_file is not None:
+            ssh_command += " > " + to_file
+        #print ssh_command
+        os.system(ssh_command)
     
     @cmd
     @click.option("-a", default=False, is_flag=True)
@@ -144,7 +152,7 @@ class Service(object):
         arguments.append(self._run_link_arguments(self.shell_links))
         arguments.append(self.image)
         arguments.append(self.shell_command)
-        self.project.open_shell(" ".join(arguments))
+        self.project.run_ssh(" ".join(arguments))
     
     @cmd
     def pull(self):
