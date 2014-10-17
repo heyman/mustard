@@ -115,15 +115,11 @@ class Service(object):
         self.registry_login = registry_login
     
     @cmd
-    def run(self):
-        self.project.run("docker %s" % self._run_arguments())
-    
-    @cmd
     def start(self):
         if self.exists():
             self.project.run("docker start %s" % self.container_name)
         else:
-            self.run()
+            self.project.run("docker %s" % self._run_arguments())
     
     @cmd
     def stop(self):
@@ -174,6 +170,28 @@ class Service(object):
             self.run()
     
     @cmd
+    @click.option("--interactive", "-i", default=True, is_flag=True)
+    @click.option("--terminal", "-t", default=True, is_flag=True)
+    @click.option("--volumes", default=False, is_flag=True)
+    @click.argument("command")
+    def run(self, command, interactive=True, terminal=True, container_name_suffix="cmd", volumes=False):
+        args = ["docker run --rm"]
+        
+        if interactive:
+            args.append("-i")
+        if terminal:
+            args.append("-t")
+        
+        args.append("--name=%s_%s_%i" % (self.container_name, container_name_suffix, int(time.time()*1000)))
+        args.append(self._run_link_arguments(self.shell_links))
+        args.append(self._run_env_arguments())
+        if volumes:
+            args.append(self._run_volume_arguments())
+        args.append(self.image)
+        args.append(command)
+        
+        self.project.run(" ".join(args))
+    
     def is_running(self):
         response = self.project.run(
             'docker inspect -f "{{ .NetworkSettings.IPAddress }}" %s' % self.container_name,
