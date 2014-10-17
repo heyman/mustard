@@ -216,7 +216,11 @@ class Service(object):
         """
         if self.volumes:
             for volume_name, container_path in self.volumes.iteritems():
-                host_path = "%s/volumes/%s/%s" % (self.project.home_path, self.name, volume_name)
+                if "/" in volume_name:
+                    # if a / is found in the name, assume it's a full path specified on the host
+                    host_path = volume_name
+                else:
+                    host_path = "%s/volumes/%s/%s" % (self.project.home_path, self.name, volume_name)
                 yield (host_path, container_path)
     
     def _run_arguments(self):
