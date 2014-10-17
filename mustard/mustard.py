@@ -167,7 +167,7 @@ class Service(object):
             self.rm()
         if was_running:
             # start container again if it was previously running
-            self.run()
+            self.start()
     
     @cmd
     @click.option("--interactive", "-i", default=True, is_flag=True)
