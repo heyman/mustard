@@ -97,16 +97,18 @@ class Service(object):
     volumes = None
     env = None
     links = None
+    ports = None
     command = None
     shell_command = None
     shell_links = None
     
-    def __init__(self, name, image, volumes={}, env={}, links=[], command=None, shell_command=None, shell_links=None, registry_login=None):
+    def __init__(self, name, image, volumes={}, env={}, links=[], ports=[], command=None, shell_command=None, shell_links=None, registry_login=None):
         self.name = name
         self.image = image
         self.volumes = volumes
         self.env = env
         self.links = links
+        self.ports = ports
         self.command = command
         self.shell_command = shell_command
         self.shell_links = shell_links
@@ -179,7 +181,6 @@ class Service(object):
         )
         return bool(response)
     
-    @cmd
     def exists(self):
         response = self.project.run(
             'docker inspect -f "{{ .NetworkSettings.IPAddress }}" %s' % self.container_name,
@@ -208,6 +209,7 @@ class Service(object):
         arguments.append(self._run_link_arguments())
         arguments.append(self._run_volume_arguments())
         arguments.append(self._run_env_arguments())
+        arguments.append(self._run_ports_arguments())
         
         arguments.append(self.image)
         if self.command:
@@ -232,12 +234,19 @@ class Service(object):
             arguments.append("-v %s:%s" % (host_path, container_path))
         return " ".join(arguments)
     
-    def _run_env_arguments(service):
+    def _run_env_arguments(self):
         arguments = []
-        if service.env:
-            for name, value in service.env.iteritems():
+        if self.env:
+            for name, value in self.env.iteritems():
                 arguments.append("-e %s=%s" % (name, value))
         return " ".join(arguments)
+    
+    def _run_ports_arguments(self):
+        args = []
+        if self.ports:
+            for host_port, container_port in self.ports.iteritems():
+                args.append("-p %i:%i" % (host_port, container_port))
+        return " ".join(args)
     
     def cli(self):
         cli = click.Group(self.name)
