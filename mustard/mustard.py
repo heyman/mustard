@@ -267,7 +267,7 @@ class Service(object):
         args = []
         if self.ports:
             for host_port, container_port in self.ports.iteritems():
-                args.append("-p %i:%i" % (host_port, container_port))
+                args.append("-p %s:%s" % (host_port, container_port))
         return " ".join(args)
     
     def cli(self):
