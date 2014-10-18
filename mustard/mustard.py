@@ -127,7 +127,10 @@ class Service(object):
     
     @cmd
     def restart(self):
-        self.project.run("docker restart %s" % self.container_name)
+        if not self.exists():
+            self.start()
+        else:
+            self.project.run("docker restart %s" % self.container_name)
     
     @cmd
     def rm(self):
