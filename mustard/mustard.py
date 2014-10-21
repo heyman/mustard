@@ -101,8 +101,9 @@ class Service(object):
     command = None
     shell_command = None
     shell_links = None
+    shell_volumes = None
     
-    def __init__(self, name, image, volumes={}, env={}, links=[], ports=[], command=None, shell_command=None, shell_links=None, registry_login=None):
+    def __init__(self, name, image, volumes={}, env={}, links=[], ports=[], command=None, shell_command=None, shell_links=None, shell_volumes=False, registry_login=None):
         self.name = name
         self.image = image
         self.volumes = volumes
@@ -112,6 +113,7 @@ class Service(object):
         self.command = command
         self.shell_command = shell_command
         self.shell_links = shell_links
+        self.shell_volumes = shell_volumes
         self.registry_login = registry_login
     
     @cmd
@@ -151,6 +153,8 @@ class Service(object):
         arguments = ["docker run --rm -i -t"]
         arguments.append("--name=%s_shell_%i" % (self.container_name, int(time.time()*1000)))
         arguments.append(self._run_link_arguments(self.shell_links))
+        if self.shell_volumes:
+            arguments.append(self._run_volume_arguments())
         arguments.append(self.image)
         arguments.append(self.shell_command)
         self.project.run_ssh(" ".join(arguments))
