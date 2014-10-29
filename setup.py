@@ -3,7 +3,7 @@ from io import open
 
 setup(
     name='mustard',
-    version='0.1.1',
+    version='0.1.2',
     description='DIY Docker PAAS',
     long_description=open('README.rst', encoding='utf-8').read(),
     author='Jonatan Heyman',
