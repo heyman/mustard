@@ -125,7 +125,8 @@ class Service(object):
     
     @cmd
     def stop(self):
-        self.project.run("docker stop %s" % self.container_name)
+        if self.exists() and self.is_running():
+            self.project.run("docker stop %s" % self.container_name)
     
     @cmd
     def restart(self):
@@ -136,7 +137,8 @@ class Service(object):
     
     @cmd
     def rm(self):
-        self.project.run("docker rm %s" % self.container_name)
+        if self.exists():
+            self.project.run("docker rm %s" % self.container_name)
     
     @cmd
     @click.option("--follow/--no-follow", "-f", default=False)
