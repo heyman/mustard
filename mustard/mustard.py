@@ -204,7 +204,7 @@ class Service(object):
             'docker inspect -f "{{ .NetworkSettings.IPAddress }}" %s' % self.container_name,
             quiet=True,
         )
-        return bool(response)
+        return bool(response) and ("Error" not in response)
     
     def exists(self):
         response = self.project.run(
