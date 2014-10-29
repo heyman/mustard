@@ -179,7 +179,7 @@ class Service(object):
     @cmd
     @click.option("--interactive", "-i", default=True, is_flag=True)
     @click.option("--terminal", "-t", default=True, is_flag=True)
-    @click.option("--volumes", default=False, is_flag=True)
+    @click.option("--volumes", default=True, is_flag=True)
     @click.argument("command")
     def run(self, command, interactive=True, terminal=True, container_name_suffix="cmd", volumes=False):
         args = ["docker run --rm"]
